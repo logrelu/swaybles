@@ -70,9 +70,10 @@ public struct Settings: Codable, Equatable {
         hidden = try c.decodeIfPresent(Bool.self, forKey: .hidden) ?? d.hidden
     }
 
-    /// First launch: the Focus Crew if it's installed, mixed with Spooky Crew, spread across the right side.
+    /// First launch: Boo and the Focus Crew first, mixed with the other packs, spread across the right side.
     public static func firstLaunch(catalog: Catalog) -> Settings {
-        let preferred = ["timer-ghost", "skeleton", "banner-bat", "flower-skull", "task-lantern", "cauldron", "chalkboard-cat", "rip-mondays"]
+        let preferred = ["boo", "timer-ghost", "skeleton", "banner-bat", "cloud-lamb", "task-lantern",
+                         "flower-skull", "chalkboard-cat", "sprout-bean", "cauldron", "rip-mondays"]
         var ids = preferred.filter { catalog.charm($0) != nil }
         if ids.isEmpty { ids = catalog.charms.map(\.id) }
         ids = Array(ids.prefix(5))
