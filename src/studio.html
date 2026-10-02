@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' swaybles: data:; style-src 'self' 'unsafe-inline'">
+<title>Swaybles Studio</title>
+<style>
+  :root {
+    --bg: #15121c; --panel: #1e1a28; --card: #262133; --line: #342d45; --ink: #f4efe6; --mute: #a79fb8;
+    --gold: #f2c443; --gold2: #e0a526; --pink: #ff8fb8; --ok: #6fd49a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); height: 100vh; display: grid; grid-template-columns: 300px 1fr; overflow: hidden; }
+  aside { background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 22px 18px 28px; }
+  .mac aside { padding-top: 44px; }
+  main { overflow-y: auto; padding: 24px 28px 40px; }
+  .mac main { padding-top: 40px; }
+  h1 { font-size: 22px; margin: 0 0 2px; letter-spacing: -.01em; display: flex; align-items: center; gap: 8px; }
+  h1 img { width: 28px; height: 30px; object-fit: contain; }
+  .tag { color: var(--mute); font-size: 13px; margin: 0 0 18px; }
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--mute); margin: 24px 0 10px; font-weight: 600; }
+  button { font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 8px 12px; font-size: 13px; }
+  button:hover { border-color: #4b4163; }
+  button.primary { background: linear-gradient(180deg, var(--gold), var(--gold2)); color: #2b1d16; border: 0; font-weight: 600; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 18px; }
+  .tabs button { border-radius: 999px; padding: 7px 14px; }
+  .tabs button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .charm { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 8px 10px; text-align: center; cursor: pointer; transition: transform .15s, border-color .15s; }
+  .charm:hover { transform: translateY(-2px); border-color: #5a4d78; }
+  .charm img { width: 100px; height: 110px; object-fit: contain; display: block; margin: 0 auto 8px; transform-origin: 50% 3%; }
+  .charm:hover img { animation: sway 1.2s ease-in-out infinite; }
+  @keyframes sway { 0%,100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+  .charm .n { font-size: 12px; color: var(--ink); line-height: 1.25; }
+  .charm.hung { border-color: var(--gold); }
+  .charm.hung::after { content: 'Hanging'; position: absolute; top: 8px; right: 8px; font-size: 10px; background: var(--gold); color: #2b1d16; padding: 2px 6px; border-radius: 999px; font-weight: 700; }
+  .charm .x { position: absolute; top: 6px; left: 6px; width: 22px; height: 22px; padding: 0; border-radius: 50%; font-size: 12px; display: none; }
+  .charm:hover .x { display: block; }
+  .medal { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 4px solid var(--gold); margin: 6px auto 13px !important; }
+  .add { border-style: dashed; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 128px; color: var(--mute); font-size: 13px; gap: 6px; }
+  .add b { font-size: 28px; color: var(--gold); line-height: 1; }
+  .hanging { display: flex; flex-direction: column; gap: 8px; }
+  .row { display: grid; grid-template-columns: 34px 1fr 26px; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 6px 8px; }
+  .row img { width: 32px; height: 36px; object-fit: contain; }
+  .row .medal-s { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); }
+  .row .nm { font-size: 12px; } .row input { width: 100%; }
+  .row button { padding: 0; width: 26px; height: 26px; border-radius: 50%; }
+  .empty { color: var(--mute); font-size: 13px; padding: 10px; border: 1px dashed var(--line); border-radius: 12px; }
+  .ropes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .rope { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px 4px 6px; text-align: center; cursor: pointer; }
+  .rope.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+  .rope canvas { width: 100%; height: 34px; display: block; }
+  .rope span { font-size: 10.5px; color: var(--mute); }
+  label.t { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 7px 0; gap: 10px; }
+  label.t small { display: block; color: var(--mute); font-size: 11.5px; }
+  input[type=range] { accent-color: var(--gold); }
+  input[type=checkbox] { width: 34px; height: 20px; appearance: none; background: #3a3350; border-radius: 999px; position: relative; cursor: pointer; flex: none; transition: background .15s; }
+  input[type=checkbox]::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .15s; }
+  input[type=checkbox]:checked { background: var(--gold2); } input[type=checkbox]:checked::after { left: 17px; }
+  select { font: inherit; font-size: 12px; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 5px; max-width: 150px; }
+  .hint { color: var(--mute); font-size: 12px; line-height: 1.5; background: var(--card); border-radius: 12px; padding: 10px 12px; border: 1px solid var(--line); }
+  .foot { color: #6f6784; font-size: 11px; margin-top: 22px; }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<aside>
+  <h1><img src="charms/spooky-crew/skeleton.png" alt="">Swaybles</h1>
+  <p class="tag">Little charms that swing on your desktop.</p>
+
+  <h2>Hanging now</h2>
+  <div class="hanging" id="hanging"></div>
+
+  <h2>Rope</h2>
+  <div class="ropes" id="ropes"></div>
+
+  <h2>Feel</h2>
+  <label class="t">Charm size <input type="range" id="size" min="0.6" max="1.6" step="0.05"></label>
+  <label class="t"><span>Gentle breeze<small>Charms drift a little on their own</small></span><input type="checkbox" id="breeze"></label>
+  <label class="t"><span>Tiny chime<small>A soft ting when you nudge one</small></span><input type="checkbox" id="sound"></label>
+  <label class="t"><span>Reduce motion<small>Calmer, shorter swings</small></span><input type="checkbox" id="reduceMotion"></label>
+
+  <h2>Desktop</h2>
+  <label class="t">Show on <select id="display"></select></label>
+  <label class="t">Launch at login <input type="checkbox" id="login"></label>
+  <label class="t">Hide all charms <input type="checkbox" id="paused"></label>
+
+  <h2>How to play</h2>
+  <div class="hint">Flick your cursor across a charm to nudge it. Grab it to swing it around. Drag the little gold pin at the top to move it along your screen.</div>
+  <p class="foot" id="ver"></p>
+</aside>
+
+<main>
+  <div class="tabs" id="tabs"></div>
+  <div class="grid" id="grid"></div>
+</main>
+<div class="toast" id="toast"></div>
+<script src="ropes.js"></script>
+<script src="studio.js"></script>
+</body>
+</html>

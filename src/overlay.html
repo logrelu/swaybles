@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' swaybles: data:; style-src 'self' 'unsafe-inline'">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; user-select: none; }
+  canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+  body.grab { cursor: grab; } body.grabbing { cursor: grabbing; } body.slide { cursor: ew-resize; }
+  body.snapshot { background: linear-gradient(135deg, #2d1b4e 0%, #5b2a6e 40%, #e0785a 100%); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="physics.js"></script>
+<script src="ropes.js"></script>
+<script src="overlay.js"></script>
+</body>
+</html>

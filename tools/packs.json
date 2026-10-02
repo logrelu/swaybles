@@ -1,0 +1,47 @@
+[
+  {
+    "id": "spooky-crew",
+    "name": "Spooky Crew",
+    "charms": [
+      { "id": "skeleton", "name": "Dancing Skeleton" },
+      { "id": "flower-skull", "name": "Flower-Crown Skull" },
+      { "id": "zombie-hand", "name": "Waving Zombie Hand" },
+      { "id": "cauldron", "name": "Bubbling Cauldron" },
+      { "id": "rip-mondays", "name": "RIP Mondays" }
+    ]
+  },
+  {
+    "id": "cutie-crew",
+    "name": "Cutie Crew",
+    "charms": [
+      { "id": "boo", "name": "Boo" },
+      { "id": "cloud-lamb", "name": "Cloud Lamb" },
+      { "id": "dotty-dino", "name": "Dotty Dino" },
+      { "id": "peace", "name": "Peace" },
+      { "id": "save-me-cat", "name": "Save-Me Cat" },
+      { "id": "sprout-bean", "name": "Sprout Bean" }
+    ]
+  },
+  {
+    "id": "cat-crew",
+    "name": "Cat Crew",
+    "charms": [
+      { "id": "hang-in-there", "name": "Hang-In-There Cat" },
+      { "id": "loaf", "name": "Bread Loaf Cat" },
+      { "id": "box-cat", "name": "Box Cat" },
+      { "id": "laptop-nap", "name": "Laptop Nap Cat" },
+      { "id": "witchy-cat", "name": "Witchy Black Cat" }
+    ]
+  },
+  {
+    "id": "focus-crew",
+    "name": "Focus Crew",
+    "charms": [
+      { "id": "timer-ghost", "name": "Timer Ghost", "role": "timer" },
+      { "id": "chalkboard-cat", "name": "Chalkboard Cat", "role": "quote" },
+      { "id": "banner-bat", "name": "Banner Bat", "role": "banner" },
+      { "id": "task-lantern", "name": "Task Lantern", "role": "task" },
+      { "id": "cocoa-buddy", "name": "Cocoa Buddy", "role": "break" }
+    ]
+  }
+]

@@ -1,0 +1,93 @@
+{
+  "name": "swaybles",
+  "version": "1.0.0",
+  "description": "Little charms that swing on your desktop.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "charms": "node tools/import-art.js",
+    "dist:mac": "electron-builder --mac -c.mac.identity=-",
+    "dist:win": "electron-builder --win",
+    "test": "node --test tests/*.test.js",
+    "test:smoke": "node tests/smoke.js",
+    "test:build": "node tests/build-check.js",
+    "charms:review": "node tools/contact-sheet.js"
+  },
+  "author": "Swaybles",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/asar": "^4.3.1",
+    "electron": "^44.5.0",
+    "electron-builder": "^26.15.3",
+    "sharp": "^0.35.5"
+  },
+  "productName": "Swaybles",
+  "private": true,
+  "build": {
+    "appId": "com.swaybles.app",
+    "productName": "Swaybles",
+    "copyright": "© 2026 Swaybles",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.lifestyle",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "extendInfo": {
+        "LSUIElement": true
+      },
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "title": "Swaybles",
+      "artifactName": "Swaybles-${version}-mac.dmg"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "artifactName": "Swaybles-Setup-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true,
+      "shortcutName": "Swaybles"
+    },
+    "publish": [],
+    "electronLanguages": [
+      "en",
+      "en_GB",
+      "en-US",
+      "en-GB"
+    ]
+  }
+}

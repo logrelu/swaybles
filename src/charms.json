@@ -1,0 +1,123 @@
+[
+  {
+    "id": "skeleton",
+    "name": "Dancing Skeleton",
+    "pack": "spooky-crew",
+    "theme": "Spooky Crew",
+    "file": "charms/spooky-crew/skeleton.png",
+    "w": 343,
+    "h": 600,
+    "ax": 0.5262,
+    "ay": 0
+  },
+  {
+    "id": "flower-skull",
+    "name": "Flower-Crown Skull",
+    "pack": "spooky-crew",
+    "theme": "Spooky Crew",
+    "file": "charms/spooky-crew/flower-skull.png",
+    "w": 446,
+    "h": 600,
+    "ax": 0.4989,
+    "ay": 0
+  },
+  {
+    "id": "zombie-hand",
+    "name": "Waving Zombie Hand",
+    "pack": "spooky-crew",
+    "theme": "Spooky Crew",
+    "file": "charms/spooky-crew/zombie-hand.png",
+    "w": 368,
+    "h": 600,
+    "ax": 0.5082,
+    "ay": 0
+  },
+  {
+    "id": "cauldron",
+    "name": "Bubbling Cauldron",
+    "pack": "spooky-crew",
+    "theme": "Spooky Crew",
+    "file": "charms/spooky-crew/cauldron.png",
+    "w": 385,
+    "h": 600,
+    "ax": 0.4987,
+    "ay": 0
+  },
+  {
+    "id": "rip-mondays",
+    "name": "RIP Mondays",
+    "pack": "spooky-crew",
+    "theme": "Spooky Crew",
+    "file": "charms/spooky-crew/rip-mondays.png",
+    "w": 352,
+    "h": 600,
+    "ax": 0.4844,
+    "ay": 0
+  },
+  {
+    "id": "boo",
+    "name": "Boo",
+    "pack": "cutie-crew",
+    "theme": "Cutie Crew",
+    "file": "charms/cutie-crew/boo.png",
+    "w": 387,
+    "h": 600,
+    "ax": 0.4935,
+    "ay": 0
+  },
+  {
+    "id": "cloud-lamb",
+    "name": "Cloud Lamb",
+    "pack": "cutie-crew",
+    "theme": "Cutie Crew",
+    "file": "charms/cutie-crew/cloud-lamb.png",
+    "w": 448,
+    "h": 600,
+    "ax": 0.5,
+    "ay": 0
+  },
+  {
+    "id": "dotty-dino",
+    "name": "Dotty Dino",
+    "pack": "cutie-crew",
+    "theme": "Cutie Crew",
+    "file": "charms/cutie-crew/dotty-dino.png",
+    "w": 399,
+    "h": 600,
+    "ax": 0.4712,
+    "ay": 0
+  },
+  {
+    "id": "peace",
+    "name": "Peace",
+    "pack": "cutie-crew",
+    "theme": "Cutie Crew",
+    "file": "charms/cutie-crew/peace.png",
+    "w": 396,
+    "h": 600,
+    "ax": 0.4811,
+    "ay": 0
+  },
+  {
+    "id": "save-me-cat",
+    "name": "Save-Me Cat",
+    "pack": "cutie-crew",
+    "theme": "Cutie Crew",
+    "file": "charms/cutie-crew/save-me-cat.png",
+    "w": 205,
+    "h": 600,
+    "ax": 0.4805,
+    "ay": 0.0017
+  },
+  {
+    "id": "sprout-bean",
+    "name": "Sprout Bean",
+    "pack": "cutie-crew",
+    "theme": "Cutie Crew",
+    "file": "charms/cutie-crew/sprout-bean.png",
+    "w": 325,
+    "h": 600,
+    "ax": 0.4723,
+    "ay": 0
+  }
+]
