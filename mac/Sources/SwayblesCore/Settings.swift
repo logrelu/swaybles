@@ -70,13 +70,14 @@ public struct Settings: Codable, Equatable {
         hidden = try c.decodeIfPresent(Bool.self, forKey: .hidden) ?? d.hidden
     }
 
-    /// First launch: Boo and the Focus Crew first, mixed with the other packs, spread across the right side.
+    /// First launch: just Boo (or the first installed charm) — one friendly face, not a crowd.
+    /// People hang more from the Studio when they're ready.
     public static func firstLaunch(catalog: Catalog) -> Settings {
         let preferred = ["boo", "timer-ghost", "skeleton", "banner-bat", "cloud-lamb", "task-lantern",
                          "flower-skull", "chalkboard-cat", "sprout-bean", "cauldron", "rip-mondays"]
         var ids = preferred.filter { catalog.charm($0) != nil }
         if ids.isEmpty { ids = catalog.charms.map(\.id) }
-        ids = Array(ids.prefix(5))
+        ids = Array(ids.prefix(1))
         let lengths = [160.0, 100, 190, 120, 150]
         var s = Settings()
         s.charms = ids.enumerated().map { i, id in

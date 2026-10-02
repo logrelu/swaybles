@@ -238,10 +238,11 @@ import Testing
         }
     }
 
-    @Test func firstLaunchPicksInstalledCharms() throws {
+    @Test func firstLaunchHangsJustOneCharm() throws {
         let cat = try Catalog(folder: charmsFolder)
         let s = Settings.firstLaunch(catalog: cat)
-        #expect(!s.charms.isEmpty && s.charms.count <= 5)
+        #expect(s.charms.count == 1)
+        #expect(s.charms[0].charmID == "boo")   // the cute ghost greets first
         for p in s.charms { #expect(cat.charm(p.charmID) != nil) }
         #expect(s.charms.allSatisfy { $0.x > 0 && $0.x < 1 })
     }
