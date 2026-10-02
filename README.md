@@ -10,7 +10,18 @@ A gentle focus buddy, made for ADHD brains. Free and open source.
 - **Private by design:** no internet, no accounts, no screen or keyboard reading. It only knows the time, the timer
   you start, and whether you've stepped away.
 
-## Run it (Mac, macOS 14+)
+## Install (no tech skills needed)
+
+**[⬇ Download Swaybles](https://github.com/sukanyamoorthy/swaybles/releases/latest/download/Swaybles.zip)** — Mac, macOS 14 or newer.
+
+1. Double-click the downloaded **Swaybles.zip**.
+2. Drag **Swaybles** into your **Applications** folder.
+3. First launch only: macOS will say it "could not verify" the app (we haven't paid Apple for notarization — the
+   code is all public, right here). Open **System Settings → Privacy & Security**, scroll down, click
+   **Open Anyway**, and confirm.
+4. Look up! The charms hang from the top of your screen, and Swaybles lives in the **menu bar** (top-right).
+
+## Run it from source (Mac, macOS 14+)
 
 You need Xcode (free, Mac App Store).
 
