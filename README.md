@@ -3,12 +3,13 @@
 Tiny charms that hang from the top of your Mac screen, swing with real rope physics, and cheer you on.
 A gentle focus buddy, made for ADHD brains. Free and open source.
 
+![A skeleton charm swinging over a moonlit piano video, with a tag reading "2 hours left of today"](docs/img/skeleton-moon.png)
+
 - **Fidget toy:** flick a charm with your cursor, drag it, let it swing.
 - **Focus timer:** tap Timer Ghost (or use the menu bar). When you finish, every charm does a happy wiggle.
 - **Make the most of the next 90 days:** pick one goal; Banner Bat shows "Day 12 / 90". It's a calendar, not a
   streak, so nothing ever resets.
-- **Private by design:** no internet, no accounts, no screen or keyboard reading. It only knows the time, the timer
-  you start, and whether you've stepped away.
+- **Private by design:** 100% offline. No data collected, ever — see [Privacy](#privacy).
 
 ## Install (no tech skills needed)
 
@@ -20,6 +21,24 @@ A gentle focus buddy, made for ADHD brains. Free and open source.
    code is all public, right here). Open **System Settings → Privacy & Security**, scroll down, click
    **Open Anyway**, and confirm.
 4. Look up! The charms hang from the top of your screen, and Swaybles lives in the **menu bar** (top-right).
+
+![Boo the ghost charm hanging beside a piano video, holding a tag reading "2 hours left of today"](docs/img/boo-piano.png)
+
+## Privacy
+
+**Swaybles collects no data. None.**
+
+- **It never connects to the internet.** There is no networking code in the app — no analytics, no crash
+  reporting, no update checks, no "phoning home". You can block it with a firewall and nothing changes.
+- **No account, no sign-up, no license key.** Download it and it's yours.
+- **It can't see what you're doing.** Swaybles never reads your screen, your windows, your keystrokes or
+  your files. The only things it knows are: the current time, the focus timer *you* start, and how long
+  the mouse and keyboard have been idle (so the charms can doze while you're away).
+- **Your photos stay home.** A photo you hang as a charm is copied into the app's own folder on your Mac
+  and never leaves it.
+- **Everything is stored locally** (your settings, goal and focus wins) and deleted with the app.
+
+Don't take our word for it — this is the entire source code, right here in this repo.
 
 ## Run it from source (Mac, macOS 14+)
 
