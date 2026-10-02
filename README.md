@@ -13,7 +13,7 @@ A gentle focus buddy, made for ADHD brains. Free and open source.
 
 ## Install (no tech skills needed)
 
-**[⬇ Download Swaybles](https://github.com/sukanyamoorthy/swaybles/releases/latest/download/Swaybles.zip)** — Mac, macOS 14 or newer.
+**[⬇ Download Swaybles](https://github.com/logrelu/swaybles/releases/latest/download/Swaybles.zip)** — Mac, macOS 14 or newer.
 
 1. Double-click the downloaded **Swaybles.zip**.
 2. Drag **Swaybles** into your **Applications** folder.
