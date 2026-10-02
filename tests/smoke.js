@@ -12,7 +12,8 @@ const electron = require('electron'); // path to the Electron binary
   const root = path.join(__dirname, '..');
   const out = path.join(os.tmpdir(), `swaybles-smoke-${Date.now()}.png`);
   const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'swaybles-ud-'));
-  const r = spawnSync(electron, ['--no-sandbox', `--user-data-dir=${userData}`, root], {
+  // --disable-gpu: CI runners have no GPU; offscreen capture renders fine in software.
+  const r = spawnSync(electron, ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', `--user-data-dir=${userData}`, root], {
     env: { ...process.env, SWAYBLES_SNAPSHOT: out, SWAYBLES_SNAP_BARE: '1', ELECTRON_ENABLE_LOGGING: '1' },
     timeout: 60000, encoding: 'utf8',
   });
