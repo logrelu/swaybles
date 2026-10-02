@@ -3,6 +3,13 @@
 Tiny charms that hang from the top of your Mac screen, swing with real rope physics, and cheer you on.
 A gentle focus buddy, made for ADHD brains. Free and open source.
 
+
+
+
+https://github.com/user-attachments/assets/83c76ddd-3cf0-400b-ad3a-4ef0acb147b8
+
+
+
 ![A skeleton charm swinging over a moonlit piano video, with a tag reading "2 hours left of today"](docs/img/skeleton-moon.png)
 
 - **Fidget toy:** flick a charm with your cursor, drag it, let it swing.
