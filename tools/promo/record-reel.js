@@ -26,7 +26,7 @@ const settings = {
 };
 const charms = JSON.parse(fs.readFileSync(path.join(SRC, 'charms.json'), 'utf8'));
 
-ipcMain.handle('get-state', () => ({ settings, charms, displays: [], platform: 'darwin', version: '1.0.0', license: { licensed: true }, buyUrl: '' }));
+ipcMain.handle('get-state', () => ({ settings, charms, displays: [], platform: 'darwin', version: '1.0.0' }));
 ipcMain.handle('update-settings', (_e, p) => Object.assign(settings, p));
 ipcMain.on('set-ignore', () => {});
 
@@ -65,7 +65,7 @@ app.whenReady().then(async () => {
       <div id="mb"><b>Finder</b><span>File</span><span>Edit</span><span>View</span><span class="r">Fri 31 Oct 9:41 PM</span></div>
       <div class="stars">\${Array.from({length: 70}, (_, i) => '<i style="left:' + ((i * 137) % 720) + 'px;top:' + (40 + (i * 89) % 1150) + 'px;opacity:' + (0.15 + (i % 6) / 10) + '"></i>').join('')}</div>
       <div id="cap" class="hide"></div>
-      <div id="end"><h1>Spooky Crew</h1><p>5 Halloween charms that swing<br>on your Mac</p><span class="price">$2.99 · link in bio</span></div>
+      <div id="end"><h1>Swaybles</h1><p>Little charms that swing<br>on your Mac</p><span class="price">Free · link in bio</span></div>
       <svg id="cur" viewBox="0 0 24 24"><path d="M3 2 L3 19 L7.5 14.8 L10.6 21.6 L13.6 20.3 L10.6 13.6 L16.8 13.6 Z" fill="#fff" stroke="#000" stroke-width="1.4" stroke-linejoin="round"/></svg>\`);
     window.__cap = (html) => { const c = document.getElementById('cap'); if (!html) { c.classList.add('hide'); return; } c.classList.add('hide'); setTimeout(() => { c.innerHTML = html; c.classList.remove('hide'); }, 180); };
     window.__cur = (x, y, down) => { const c = document.getElementById('cur'); c.style.left = x - 4 + 'px'; c.style.top = y - 2 + 'px'; c.classList.toggle('down', !!down); };
