@@ -14,7 +14,9 @@ let package = Package(
         .target(name: "SwayblesCore"),
         // The app: menu bar, transparent overlay, Studio window.
         .executableTarget(name: "Swaybles", dependencies: ["SwayblesCore"]),
-        .testTarget(name: "SwayblesCoreTests", dependencies: ["SwayblesCore"])
+        .testTarget(name: "SwayblesCoreTests", dependencies: ["SwayblesCore"]),
+        // The app layer: AppModel (state, focus, idle, what each charm says) and the overlay's geometry.
+        .testTarget(name: "SwayblesAppTests", dependencies: ["Swaybles", "SwayblesCore"])
     ],
     swiftLanguageModes: [.v5]
 )

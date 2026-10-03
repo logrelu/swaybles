@@ -44,7 +44,8 @@ the change on screen, the contact sheet was looked at for new art, and every new
   `Overlay.swift` (transparent click-through panel, animation loop, mouse), `OverlayView.swift` (drawing),
   `Ropes.swift` (rope styles), `MenuContent.swift`, `StudioView.swift`
 - `Resources/Charms/` — charm PNGs + `charms.json` (generated; don't edit by hand)
-- `Tests/SwayblesCoreTests/` — Swift Testing
+- `Tests/SwayblesCoreTests/` — Swift Testing, pure logic
+- `Tests/SwayblesAppTests/` — Swift Testing, the app layer: `AppModel` (injected defaults, catalog, clock, idle source) and `OverlayGeometry.swift` (hit-testing, drag clamp). The panel, display link and drawing are covered by `docs/QA.md`, not unit tests
 - `scripts/make-app.sh` — universal .app, icon, ad-hoc signature, zip
 
 Legacy: `src/` (Electron app, don't add features), `tools/` (art importer, contact sheet, promo recorder),
@@ -58,5 +59,6 @@ Legacy: `src/` (Electron app, don't add features), `tools/` (art importer, conta
 
 ## Releasing
 1. Bump `version` in `package.json` (the script reads it).
-2. `mac/scripts/make-app.sh`, then open the zip on a Mac and check the app starts.
-3. Upload the zip to GitHub Releases. Download note: "first time: right-click → Open".
+2. `cd mac && swift test` passes.
+3. `mac/scripts/make-app.sh`, then run through `docs/QA.md` on the packaged app (not `swift run`).
+4. Upload the zip to GitHub Releases. Download note: "first time: right-click → Open".

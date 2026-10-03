@@ -29,14 +29,17 @@ final class AppModel {
 
     @ObservationIgnored weak var overlay: OverlayController?
     @ObservationIgnored private var timer: Timer?
-    private static let key = "settings.v1"
+    @ObservationIgnored private let defaults: UserDefaults
+    static let key = "settings.v1"
 
-    init() {
-        let catalog = (try? Catalog(folder: AppModel.charmsFolder())) ?? Catalog(charms: [], folder: AppModel.charmsFolder())
-        let photos = PhotoCharms.load()
+    /// Tests pass their own defaults and catalogs, so they never touch the person's real ones.
+    init(defaults: UserDefaults = .standard, catalog: Catalog? = nil, photos: Catalog? = nil) {
+        let catalog = catalog ?? (try? Catalog(folder: AppModel.charmsFolder())) ?? Catalog(charms: [], folder: AppModel.charmsFolder())
+        let photos = photos ?? PhotoCharms.load()
+        self.defaults = defaults
         self.catalog = catalog
         self.photos = photos
-        if let data = UserDefaults.standard.data(forKey: AppModel.key),
+        if let data = defaults.data(forKey: AppModel.key),
            let saved = try? JSONDecoder().decode(Settings.self, from: data) {
             var s = saved
             s.charms.removeAll { catalog.charm($0.charmID) == nil && photos.charm($0.charmID) == nil }   // a pack was removed
@@ -87,7 +90,7 @@ final class AppModel {
         change(&settings)
         guard settings != before else { return }
         if let data = try? JSONEncoder().encode(settings) {
-            UserDefaults.standard.set(data, forKey: AppModel.key)
+            defaults.set(data, forKey: AppModel.key)
         }
         overlay?.settingsChanged(from: before)
     }
@@ -134,11 +137,11 @@ final class AppModel {
         overlay?.labelsChanged()
     }
 
-    private func finishFocus() {
+    private func finishFocus(at t: Date) {
         focus.stop()
-        update { $0.wins.add(Date()) }
-        say(Copy.cheers.randomElement()!, for: 12)
-        breakUntil = Date().addingTimeInterval(5 * 60)
+        update { $0.wins.add(t) }
+        say(Copy.cheers.randomElement()!, for: 12, at: t)
+        breakUntil = t.addingTimeInterval(5 * 60)
         overlay?.celebrate()
         if settings.sound { NSSound(named: "Glass")?.play() }
     }
@@ -163,8 +166,8 @@ final class AppModel {
 
     // MARK: What each charm says
 
-    func say(_ text: String, for seconds: TimeInterval) {
-        message = (text, Date().addingTimeInterval(seconds))
+    func say(_ text: String, for seconds: TimeInterval, at t: Date = Date()) {
+        message = (text, t.addingTimeInterval(seconds))
         overlay?.labelsChanged()
     }
 
@@ -216,11 +219,10 @@ final class AppModel {
 
     @ObservationIgnored private var ticks = 0
 
-    private func tick() {
-        let t = Date()
+    func tick(at t: Date = Date()) {
         let minuteChanged = Calendar.current.component(.minute, from: t) != Calendar.current.component(.minute, from: now)
         now = t
-        if focus.isDone(at: t) { finishFocus() }
+        if focus.isDone(at: t) { finishFocus(at: t) }
         if let m = message, m.until <= t { message = nil; overlay?.labelsChanged() }
         if let b = breakUntil, b <= t { breakUntil = nil; overlay?.labelsChanged() }
         ticks += 1
@@ -230,9 +232,15 @@ final class AppModel {
 
     /// System idle time: seconds since the last mouse/keyboard input. Needs no permission
     /// and tells us nothing about what the person is doing, only that they stepped away.
-    private func checkIdle() {
-        let anyInput = CGEventType(rawValue: ~0)!
-        let idle = CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: anyInput)
+    private func checkIdle() { applyIdle(seconds: idleSeconds()) }
+
+    /// Seconds since the last input. A property so tests can stand in for the real keyboard and mouse.
+    @ObservationIgnored var idleSeconds: () -> Double = {
+        CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: CGEventType(rawValue: ~0)!)
+    }
+
+    /// Doze after the chosen idle time (never mid-focus); wake, with a "welcome back", once input returns.
+    func applyIdle(seconds idle: Double) {
         if !isDozing, idle >= Double(settings.idleMinutes * 60), !focus.isRunning {
             isDozing = true
             overlay?.dozeChanged()

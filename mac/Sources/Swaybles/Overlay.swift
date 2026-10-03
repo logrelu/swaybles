@@ -159,21 +159,18 @@ final class OverlayController: NSObject {
     }
 
     func center(of it: Hanging) -> CGPoint {
-        let (w, h) = size(of: it)
-        let ox = (0.5 - it.charm.ax) * w, oy = (0.5 - it.charm.ay) * h
-        let c = cos(it.rope.angle), s = sin(it.rope.angle), e = it.rope.end
-        return CGPoint(x: e.x + ox * c - oy * s, y: e.y + ox * s + oy * c)
+        OverlayGeometry.center(ropeEnd: (it.rope.end.x, it.rope.end.y), angle: it.rope.angle, size: size(of: it),
+                               ax: it.charm.ax, ay: it.charm.ay)
     }
 
     private func hit(_ p: CGPoint) -> (item: Hanging, kind: HitKind)? {
-        for it in items.reversed() {
+        let targets = items.map { it -> OverlayGeometry.Target in
             let (w, h) = size(of: it)
-            let c = center(of: it)
-            if hypot(p.x - c.x, p.y - c.y) < min(w, h) * 0.5 { return (it, .charm) }
-            let a = it.rope.nodes[0]
-            if hypot(p.x - a.x, p.y - a.y) < 14 { return (it, .pin) }
+            return .init(center: center(of: it), radius: min(w, h) * 0.5,
+                         pin: CGPoint(x: it.rope.nodes[0].x, y: it.rope.nodes[0].y))
         }
-        return nil
+        guard let h = OverlayGeometry.hit(p, in: targets) else { return nil }
+        return (items[h.index], h.isPin ? .pin : .charm)
     }
 
     // MARK: Animation loop (sleeps when everything is still)
@@ -342,12 +339,11 @@ final class OverlayController: NSObject {
         guard let d = drag else { return }
         if hypot(p.x - d.start.x, p.y - d.start.y) > 4 { drag?.moved = true }
         if d.kind == .pin {
-            d.item.x = min(0.99, max(0.01, Double(p.x) / width))
+            d.item.x = OverlayGeometry.pinFraction(forX: Double(p.x), width: width)
         } else {
             let r = d.item.rope, a = r.nodes[0], last = r.nodes.count - 1
-            var tx = Double(p.x - d.offset.dx), ty = Double(p.y - d.offset.dy)
-            let dx = tx - a.x, dy = ty - a.y, dist = hypot(dx, dy), maxLen = r.length * 1.02
-            if dist > maxLen { tx = a.x + dx / dist * maxLen; ty = a.y + dy / dist * maxLen }
+            let (tx, ty) = OverlayGeometry.clampedDrag(to: (Double(p.x - d.offset.dx), Double(p.y - d.offset.dy)),
+                                                       anchor: (a.x, a.y), ropeLength: r.length)
             d.item.rope.nodes[last].px = d.item.rope.nodes[last].x
             d.item.rope.nodes[last].py = d.item.rope.nodes[last].y
             d.item.rope.nodes[last].x = tx
