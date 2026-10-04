@@ -75,6 +75,31 @@ enum RopeDrawer {
         }
     }
 
+    /// One pearl drawn once, at 4× size. A radial gradient per pearl per frame was the single biggest cost
+    /// of the Pearl Strand; drawing a ready-made picture 22 times is cheap.
+    /// (Drawn into a flipped view, a picture appears upside-down, so the highlight is baked down-left here
+    /// and ends up up-left on screen, like the old per-frame version.)
+    private static let pearlSprite: CGImage? = {
+        let scale = 4.0, d = 6.6 * scale
+        let px = Int(d.rounded(.up))
+        guard let ctx = CGContext(data: nil, width: px, height: px, bitsPerComponent: 8, bytesPerRow: 0,
+                                  space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue),
+              let g = CGGradient(colorsSpace: CGColorSpace(name: CGColorSpace.sRGB)!,
+                                 colors: [color(0xffffff), color(0xf1e9df), color(0xb8aa9b)] as CFArray,
+                                 locations: [0, 0.6, 1])
+        else { return nil }
+        let r = Double(px) / 2, c = CGPoint(x: r, y: r)
+        ctx.addEllipse(in: CGRect(x: 0, y: 0, width: Double(px), height: Double(px)))
+        ctx.clip()
+        ctx.drawRadialGradient(g, startCenter: CGPoint(x: c.x - 1.2 * scale, y: c.y - 1.2 * scale), startRadius: 0.4 * scale,
+                               endCenter: c, endRadius: 3.6 * scale, options: [])
+        return ctx.makeImage()
+    }()
+
+    private static let pinGradient = CGGradient(
+        colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: [color(0xfff6c8), color(0xb8841c)] as CFArray, locations: [0, 1])
+
     static func draw(_ style: RopeStyle, _ ctx: CGContext, _ pts: [CGPoint], time: Double) {
         let p = path(pts)
         switch style {
@@ -100,17 +125,13 @@ enum RopeDrawer {
             stroke(ctx, p, color(0x8c7045), 1.2, dash: [3, 3])
         case .pearls:
             stroke(ctx, p, color(0x786e64, 0.5), 1)
-            let space = CGColorSpaceCreateDeviceRGB()
-            let colors = [color(0xffffff), color(0xf1e9df), color(0xb8aa9b)] as CFArray
-            guard let g = CGGradient(colorsSpace: space, colors: colors, locations: [0, 0.6, 1]) else { return }
+            guard let pearl = pearlSprite else { return }
+            ctx.saveGState()
+            ctx.interpolationQuality = .high
             for q in sample(pts, every: 7.2) {
-                ctx.saveGState()
-                ctx.addEllipse(in: CGRect(x: q.p.x - 3.3, y: q.p.y - 3.3, width: 6.6, height: 6.6))
-                ctx.clip()
-                ctx.drawRadialGradient(g, startCenter: CGPoint(x: q.p.x - 1.2, y: q.p.y - 1.2), startRadius: 0.4,
-                                       endCenter: q.p, endRadius: 3.6, options: [])
-                ctx.restoreGState()
+                ctx.draw(pearl, in: CGRect(x: q.p.x - 3.3, y: q.p.y - 3.3, width: 6.6, height: 6.6))
             }
+            ctx.restoreGState()
         case .rainbow:
             stroke(ctx, p, CGColor(gray: 0, alpha: 0.35), 4.6)
             for i in 0..<(pts.count - 1) {
@@ -127,8 +148,7 @@ enum RopeDrawer {
     static func drawPin(_ ctx: CGContext, at p: CGPoint, hot: Bool) {
         let r: CGFloat = hot ? 7 : 5
         let c = CGPoint(x: p.x, y: p.y + 1)
-        let space = CGColorSpaceCreateDeviceRGB()
-        guard let g = CGGradient(colorsSpace: space, colors: [color(0xfff6c8), color(0xb8841c)] as CFArray, locations: [0, 1]) else { return }
+        guard let g = pinGradient else { return }
         ctx.saveGState()
         ctx.addEllipse(in: CGRect(x: c.x - r, y: c.y - r, width: r * 2, height: r * 2))
         ctx.clip()
