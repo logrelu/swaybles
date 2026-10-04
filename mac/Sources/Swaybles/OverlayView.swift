@@ -15,6 +15,40 @@ final class OverlayView: NSView {
     override func mouseDragged(with e: NSEvent) { controller?.mouseDragged(to: convert(e.locationInWindow, from: nil)) }
     override func mouseUp(with e: NSEvent) { controller?.mouseUp() }
 
+    // MARK: Sprites
+
+    /// A charm and its shadow drawn once at the size it's shown at, so each frame only turns a small
+    /// ready-made bitmap. (Re-scaling and blurring the full picture 60× a second was most of the CPU.)
+    private var sprites: [String: NSImage] = [:]
+
+    private func sprite(for it: Hanging, w: Double, h: Double) -> (image: NSImage, pad: Double)? {
+        guard let source = it.image, let k = controller?.model.settings.size else { return nil }
+        let scale = Double(window?.backingScaleFactor ?? 2)
+        let pad = (16 * k).rounded(.up) + 2
+        let key = "\(it.charm.id)@\(k)@\(scale)"
+        if let hit = sprites[key] { return (hit, pad) }
+        if sprites.count > 40 { sprites.removeAll() }     // sizes the person tried and left behind
+
+        let pw = Int(((w + pad * 2) * scale).rounded(.up)), ph = Int(((h + pad * 2) * scale).rounded(.up))
+        guard let ctx = CGContext(data: nil, width: pw, height: ph, bitsPerComponent: 8, bytesPerRow: 0,
+                                  space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                                  bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)
+        else { return nil }
+        // Shadow offset and blur are in pixels, not affected by the scale below.
+        ctx.setShadow(offset: CGSize(width: 0, height: -5 * k * scale), blur: 10 * k * scale,
+                      color: CGColor(gray: 0, alpha: 0.28))
+        ctx.scaleBy(x: scale, y: scale)
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: false)
+        source.draw(in: NSRect(x: pad, y: pad, width: w, height: h), from: .zero, operation: .sourceOver, fraction: 1,
+                    respectFlipped: true, hints: [.interpolation: NSImageInterpolation.high.rawValue])
+        NSGraphicsContext.restoreGraphicsState()
+        guard let cg = ctx.makeImage() else { return nil }
+        let image = NSImage(cgImage: cg, size: NSSize(width: w + pad * 2, height: h + pad * 2))
+        sprites[key] = image
+        return (image, pad)
+    }
+
     // MARK: Drawing
 
     override func draw(_ dirtyRect: NSRect) {
@@ -22,7 +56,6 @@ final class OverlayView: NSView {
         dirtyRect.fill(using: .copy)
         guard let c = controller, let ctx = NSGraphicsContext.current?.cgContext else { return }
         let model = c.model
-        let k = model.settings.size
 
         for it in c.items {
             let pts = it.rope.nodes.map { CGPoint(x: $0.x, y: $0.y) }
@@ -34,13 +67,12 @@ final class OverlayView: NSView {
             ctx.saveGState()
             ctx.translateBy(x: e.x, y: e.y)
             ctx.rotate(by: it.rope.angle)
-            ctx.saveGState()
-            // Shadow offsets ignore the flipped transform, so "down" is negative here.
-            ctx.setShadow(offset: CGSize(width: 0, height: -5 * k), blur: 10 * k, color: CGColor(gray: 0, alpha: 0.28))
-            it.image?.draw(in: NSRect(x: -w * it.charm.ax, y: -h * it.charm.ay, width: w, height: h),
-                           from: .zero, operation: .sourceOver, fraction: model.isDozing ? 0.85 : 1,
-                           respectFlipped: true, hints: [.interpolation: NSImageInterpolation.high.rawValue])
-            ctx.restoreGState()
+            if let sprite = sprite(for: it, w: w, h: h) {
+                sprite.image.draw(in: NSRect(x: -w * it.charm.ax - sprite.pad, y: -h * it.charm.ay - sprite.pad,
+                                             width: w + sprite.pad * 2, height: h + sprite.pad * 2),
+                                  from: .zero, operation: .sourceOver, fraction: model.isDozing ? 0.85 : 1,
+                                  respectFlipped: true, hints: nil)
+            }
             if let t = model.text(for: it.charm) { drawText(t, on: it, w: w, h: h, ctx: ctx) }
             ctx.restoreGState()
 

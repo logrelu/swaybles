@@ -62,6 +62,8 @@ final class OverlayController: NSObject {
     private var still = 0
     private(set) var time = 0.0
     private var lastDirty = CGRect.null
+    private var lastActivity = -100.0     // last time the person (or a celebration) stirred things
+    private var ambientRate = false
 
     private var poll: Timer?
     private var mouse = CGPoint.zero
@@ -176,6 +178,7 @@ final class OverlayController: NSObject {
     // MARK: Animation loop (sleeps when everything is still)
 
     func wake() {
+        lastActivity = time
         still = 0
         if link?.isPaused == true { lastTime = 0; link?.isPaused = false }
     }
@@ -204,19 +207,29 @@ final class OverlayController: NSObject {
 
         let energy = items.reduce(0) { $0 + $1.rope.energy }
         let animated = model.settings.breeze || model.settings.rope == .rainbow
+        // Just the breeze or the rainbow cord, nobody touching: 30 frames a second looks the same and costs half.
+        let ambient = animated && drag == nil && particles.isEmpty && time - lastActivity > 1.5
+        if ambient != ambientRate {
+            ambientRate = ambient
+            link.preferredFrameRateRange = ambient ? CAFrameRateRange(minimum: 24, maximum: 30, preferred: 30)
+                                                   : CAFrameRateRange(minimum: 30, maximum: 120, preferred: 60)
+        }
         still = energy < 0.05 && drag == nil && !animated && particles.isEmpty ? still + 1 : 0
         if still > 90 { link.isPaused = true }
     }
 
     /// Redraw only around the charms (this frame's area plus last frame's).
+    /// The area is the rope plus the charm's own box (its circle, shadow, and tags below the first one),
+    /// not a generous square: every extra pixel here is repainted and re-composited every frame.
     func invalidate(all: Bool) {
         var r = CGRect.null
-        for it in items {
+        for (i, it) in items.enumerated() {
             let (w, h) = size(of: it)
-            let reach = hypot(w, h) + 24
+            let reach = hypot(w, h) / 2 + 24
+            let c = center(of: it)
             for n in it.rope.nodes { r = r.union(CGRect(x: n.x - 8, y: n.y - 8, width: 16, height: 16)) }
-            let e = it.rope.end
-            r = r.union(CGRect(x: e.x - reach, y: e.y - reach, width: reach * 2, height: reach * 2 + 80))
+            r = r.union(CGRect(x: c.x - reach, y: c.y - reach, width: reach * 2, height: reach * 2))
+            if i == 0 { r = r.union(CGRect(x: c.x - 130, y: c.y + h * 0.5, width: 260, height: 90)) }   // tags under the first charm
         }
         for p in particles { r = r.union(CGRect(x: p.p.x - 20, y: p.p.y - 20, width: 40, height: 40)) }
         if all { view.needsDisplay = true } else { view.setNeedsDisplay(r.union(lastDirty)) }
