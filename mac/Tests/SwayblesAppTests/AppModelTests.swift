@@ -275,8 +275,11 @@ struct Fixture {
     @Test func bannerShowsTheDayOnceStarted() {
         let f = Fixture(); defer { f.cleanUp() }
         f.model.startNinety(goal: "ship it")
-        #expect(f.model.text(for: charm("bat"))?.text == f.model.bannerText)
-        #expect(f.model.bannerText.contains("1"))
+        // The banner alternates the day counter with time facts by the wall clock's ten-minute slot,
+        // so pin the clock to an even slot (10:00 today) instead of depending on when the test runs.
+        f.model.tick(at: Calendar.current.date(bySettingHour: 10, minute: 0, second: 0, of: Date())!)
+        #expect(f.model.text(for: charm("bat"))?.text == "Day 1 / 90")
+        #expect(f.model.bannerText == "Day 1 / 90")
     }
 
     @Test func setGoalBeforeStartingBeginsTheNinetyDays() {
