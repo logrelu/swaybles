@@ -10,6 +10,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+# A new push to a pull request stops that PR's older run; runs on main always finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -29,6 +34,12 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - name: Cache the Swift build
+        uses: actions/cache@v4
+        with:
+          path: mac/.build
+          key: swift-${{ runner.os }}-${{ hashFiles('mac/Package.swift', 'mac/Sources/**', 'mac/Tests/**') }}
+          restore-keys: swift-${{ runner.os }}-
       - name: Swift tests
         run: swift test
         working-directory: mac
