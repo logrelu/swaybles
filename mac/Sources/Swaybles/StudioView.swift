@@ -77,6 +77,7 @@ private struct NinetyTab: View {
 private struct CharmsTab: View {
     let model: AppModel
     @State private var photoTrouble = false
+    @State private var photoToRemove: Charm?
     private let columns = [GridItem(.adaptive(minimum: 92), spacing: 12)]
 
     var body: some View {
@@ -101,17 +102,36 @@ private struct CharmsTab: View {
                     LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(model.photos.charms) { charm in
                             CharmTile(model: model, charm: charm)
+                                .overlay(alignment: .topTrailing) {
+                                    Button { photoToRemove = charm } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.title3)
+                                            .symbolRenderingMode(.palette)
+                                            .foregroundStyle(.white, .gray)
+                                            .padding(4)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .help("Remove this photo")
+                                    .accessibilityLabel("Remove \(charm.name)")
+                                }
                                 .contextMenu {
-                                    Button("Remove from Swaybles", role: .destructive) { model.removePhoto(charm.id) }
+                                    Button("Remove from Swaybles…", role: .destructive) { photoToRemove = charm }
                                 }
                         }
                     }
                 }
                 Button("Add a photo…", action: pickPhoto)
-                Text("Your photo stays on this Mac — Swaybles frames a copy and hangs it. Right-click one to remove it.")
+                Text("Your photo stays on this Mac — Swaybles frames a copy and hangs it. Tap the × on a photo to remove it.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding(4)
+        }
+        .confirmationDialog("Remove this photo?", isPresented: Binding(
+            get: { photoToRemove != nil }, set: { if !$0 { photoToRemove = nil } }), presenting: photoToRemove) { charm in
+            Button("Remove \(charm.name)", role: .destructive) { model.removePhoto(charm.id) }
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
+            Text("This deletes Swaybles' framed copy. The original picture isn't touched.")
         }
         .alert("That picture couldn't be read — a JPG, PNG or HEIC works best.", isPresented: $photoTrouble) {
             Button("OK") {}
