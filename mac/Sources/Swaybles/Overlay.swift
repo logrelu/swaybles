@@ -238,10 +238,14 @@ final class OverlayController: NSObject {
 
     // MARK: Reactions
 
+    /// Loaded once: building an NSSound from disk for every touch was a visible cost while swiping.
+    private lazy var pop = NSSound(named: "Pop")
+
     private func chime() {
         guard model.settings.sound, time - lastChime > 0.25 else { return }
         lastChime = time
-        NSSound(named: "Pop")?.play()
+        pop?.stop()
+        pop?.play()
     }
 
     func nudgeAll(strength: Double) {
@@ -327,11 +331,18 @@ final class OverlayController: NSObject {
         }
         let over = hit(p)
         let changed = over?.item !== hover?.item || over?.kind != hover?.kind
+        let was = hover
         hover = over
-        panel.ignoresMouseEvents = over == nil
+        // Only on a change: setting it is a round trip to the window server, and this runs 30×/s.
+        if panel.ignoresMouseEvents != (over == nil) { panel.ignoresMouseEvents = over == nil }
         if changed {
             (over == nil ? NSCursor.arrow : over!.kind == .pin ? NSCursor.resizeLeftRight : NSCursor.openHand).set()
-            invalidate(all: true)
+            // Only a pin looks different when hovered (it grows), so repaint just the pins involved,
+            // not the whole strip with every charm in it.
+            for it in [was, over].compactMap({ $0 }) where it.kind == .pin {
+                let a = it.item.rope.nodes[0]
+                view.setNeedsDisplay(CGRect(x: a.x - 12, y: a.y - 12, width: 24, height: 24))
+            }
         }
     }
 

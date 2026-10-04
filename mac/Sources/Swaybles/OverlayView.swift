@@ -94,20 +94,40 @@ final class OverlayView: NSView {
 
         for p in c.particles {
             let a = max(0, min(1, p.life / p.maxLife))
-            let s = NSAttributedString(string: p.glyph, attributes: [
-                .font: NSFont.systemFont(ofSize: 18, weight: .bold),
-                .foregroundColor: p.color.withAlphaComponent(a),
-            ])
-            let size = s.size()
+            let (s, size) = sparkle(p.glyph, p.color)
+            ctx.saveGState()
+            ctx.setAlpha(a)                                   // fade with the context, not a new string per frame
             s.draw(at: CGPoint(x: p.p.x - size.width / 2, y: p.p.y - size.height / 2))
+            ctx.restoreGState()
         }
+    }
+
+    private var sparkles: [String: (NSAttributedString, CGSize)] = [:]
+
+    private func sparkle(_ glyph: String, _ color: NSColor) -> (NSAttributedString, CGSize) {
+        let key = "\(glyph)/\(color.hashValue)"
+        if let hit = sparkles[key] { return hit }
+        let s = NSAttributedString(string: glyph, attributes: [
+            .font: NSFont.systemFont(ofSize: 18, weight: .bold), .foregroundColor: color,
+        ])
+        sparkles[key] = (s, s.size())
+        return (s, s.size())
     }
 
     // MARK: Words on charms
 
+    // Fonts and text sizes are looked up once and reused: this draws every frame.
+    private var fonts: [String: NSFont] = [:]
+    private var fitted: [String: CGFloat] = [:]
+    private var pills: [String: NSAttributedString] = [:]
+
     private func roundedFont(_ size: CGFloat, _ weight: NSFont.Weight = .bold) -> NSFont {
+        let key = "\(size)/\(weight.rawValue)"
+        if let f = fonts[key] { return f }
         let f = NSFont.systemFont(ofSize: size, weight: weight)
-        return NSFont(descriptor: f.fontDescriptor.withDesign(.rounded) ?? f.fontDescriptor, size: size) ?? f
+        let rounded = NSFont(descriptor: f.fontDescriptor.withDesign(.rounded) ?? f.fontDescriptor, size: size) ?? f
+        fonts[key] = rounded
+        return rounded
     }
 
     /// On the charm's blank surface if it has one (see docs/ART.md), else in a little tag under it.
@@ -141,26 +161,41 @@ final class OverlayView: NSView {
         let para = NSMutableParagraphStyle()
         para.alignment = .center
         para.lineBreakMode = .byWordWrapping
-        var size = max(7, min(rect.height * 0.55, 34))
-        var s = NSAttributedString()
-        var box = CGRect.zero
-        repeat {
-            s = NSAttributedString(string: text, attributes: [.font: roundedFont(size), .foregroundColor: color, .paragraphStyle: para])
-            box = s.boundingRect(with: CGSize(width: rect.width, height: .greatestFiniteMagnitude),
-                                 options: [.usesLineFragmentOrigin], context: nil)
-            if box.height <= rect.height && box.width <= rect.width + 0.5 { break }
-            size -= 1
-        } while size >= 7
+        func attributed(_ size: CGFloat) -> NSAttributedString {
+            NSAttributedString(string: text, attributes: [.font: roundedFont(size), .foregroundColor: color, .paragraphStyle: para])
+        }
+        func measure(_ s: NSAttributedString) -> CGRect {
+            s.boundingRect(with: CGSize(width: rect.width, height: .greatestFiniteMagnitude),
+                           options: [.usesLineFragmentOrigin], context: nil)
+        }
+        let key = "\(text)|\(Int(rect.width))x\(Int(rect.height))"
+        var size = fitted[key] ?? max(7, min(rect.height * 0.55, 34))
+        var s = attributed(size)
+        var box = measure(s)
+        if fitted[key] == nil {
+            while !(box.height <= rect.height && box.width <= rect.width + 0.5), size > 7 {
+                size -= 1
+                s = attributed(size)
+                box = measure(s)
+            }
+            if fitted.count > 60 { fitted.removeAll() }
+            fitted[key] = size
+        }
         s.draw(with: CGRect(x: rect.minX, y: rect.midY - box.height / 2, width: rect.width, height: box.height),
                options: [.usesLineFragmentOrigin], context: nil)
     }
 
     /// A small paper tag with text, centred on `center`.
     private func pill(_ text: String, center: CGPoint) {
-        let s = NSAttributedString(string: text, attributes: [
-            .font: roundedFont(12, .semibold),
-            .foregroundColor: NSColor(red: 0.23, green: 0.16, blue: 0.12, alpha: 1),
-        ])
+        let s: NSAttributedString
+        if let cached = pills[text] { s = cached } else {
+            s = NSAttributedString(string: text, attributes: [
+                .font: roundedFont(12, .semibold),
+                .foregroundColor: NSColor(red: 0.23, green: 0.16, blue: 0.12, alpha: 1),
+            ])
+            if pills.count > 30 { pills.removeAll() }
+            pills[text] = s
+        }
         let size = s.size()
         let box = CGRect(x: center.x - size.width / 2 - 9, y: center.y - size.height / 2 - 4,
                          width: size.width + 18, height: size.height + 8)

@@ -160,8 +160,17 @@ final class AppModel {
         }
     }
 
+    /// The banner only changes when the minute, the goal's start or the year-countdown choice does,
+    /// but the overlay asks for it every frame, so it's worked out once per minute.
+    @ObservationIgnored private var bannerCache: (minute: Int, start: Date?, year: Bool, text: String)?
+
     var bannerText: String {
-        Copy.bannerLine(ninety: settings.ninety, preferYearCountdown: settings.showYearCountdown, on: now)
+        let minute = Int(now.timeIntervalSince1970 / 60)
+        let start = settings.ninety?.start, year = settings.showYearCountdown
+        if let c = bannerCache, c.minute == minute, c.start == start, c.year == year { return c.text }
+        let text = Copy.bannerLine(ninety: settings.ninety, preferYearCountdown: year, on: now)
+        bannerCache = (minute, start, year, text)
+        return text
     }
 
     // MARK: What each charm says
